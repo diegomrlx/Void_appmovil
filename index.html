@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Void">
+<meta name="theme-color" content="#0A0A0F">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Void</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+:root{
+  --bg:#0A0A0F;--bg2:#111118;--bg3:#18181F;--bg4:#1E1E28;
+  --border:#2A2A38;--border2:#333345;
+  --text:#F0F0F5;--text2:#9898B8;--text3:#5A5A78;
+  --accent:#FF6B35;--blue:#4A9EFF;--teal:#00D4B4;
+  --red:#FF4545;--yellow:#FFB800;--green:#00C875;
+  --purple:#9B6DFF;--pink:#FF6B9D;
+  --r:12px;--r2:8px;--r3:20px;
+  --safe-top:env(safe-area-inset-top,0px);
+  --safe-bot:env(safe-area-inset-bottom,0px);
+}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Space Grotesk',sans-serif;overflow:hidden;}
+#app{height:100dvh;display:flex;flex-direction:column;max-width:430px;margin:0 auto;position:relative;overflow:hidden;}
+
+/* ─── Header ─────────────────────────────────────────────────────────────── */
+#hdr{flex-shrink:0;padding:calc(var(--safe-top) + 10px) 16px 0;}
+.hi{display:flex;align-items:center;justify-content:space-between;height:50px;}
+.logo{font-size:21px;font-weight:700;letter-spacing:-1px;}
+.logo em{color:var(--accent);font-style:normal;}
+.hbtns{display:flex;gap:7px;}
+.hbtn{width:38px;height:38px;border-radius:50%;background:var(--bg3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;transition:background .15s;}
+.hbtn:active{background:var(--bg4);}
+.hbtn svg{width:17px;height:17px;stroke:var(--text2);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.rdot{width:7px;height:7px;background:var(--red);border-radius:50%;position:absolute;top:6px;right:6px;border:2px solid var(--bg2);display:none;}
+
+/* ─── Sync bar ───────────────────────────────────────────────────────────── */
+#sbar{display:flex;align-items:center;justify-content:space-between;padding:4px 16px 0;flex-shrink:0;}
+.sdot{width:6px;height:6px;border-radius:50%;background:var(--text3);}
+.sdot.ok{background:var(--green);}
+.sdot.spin{background:var(--yellow);animation:blink .8s infinite;}
+.sdot.err{background:var(--red);}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.stxt{font-size:11px;color:var(--text3);display:flex;align-items:center;gap:5px;}
+.sync-link{font-size:11px;color:var(--accent);cursor:pointer;}
+
+/* ─── Nav ────────────────────────────────────────────────────────────────── */
+#nav{display:flex;padding:5px 10px 2px;gap:2px;flex-shrink:0;}
+.nb{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 2px;border-radius:var(--r2);cursor:pointer;border:none;background:transparent;color:var(--text3);transition:all .15s;position:relative;}
+.nb svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.nb span{font-size:9.5px;font-weight:500;}
+.nb.active{color:var(--accent);background:rgba(255,107,53,.08);}
+.nb:active{transform:scale(.93);}
+.nbadge{position:absolute;top:4px;right:10px;min-width:16px;height:16px;background:var(--red);border-radius:8px;font-size:9px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center;padding:0 3px;border:2px solid var(--bg);}
+
+/* ─── Content ────────────────────────────────────────────────────────────── */
+#content{flex:1;overflow-y:auto;padding:8px 16px 0;overscroll-behavior:contain;}
+#content::-webkit-scrollbar{display:none;}
+
+/* ─── Cards ──────────────────────────────────────────────────────────────── */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:11px 13px 11px 15px;margin-bottom:8px;cursor:pointer;transition:border-color .15s;position:relative;overflow:hidden;}
+.card:active{background:var(--bg3);}
+.cacc{position:absolute;left:0;top:0;bottom:0;width:3px;}
+.ctop{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;}
+.ctitle{font-size:14px;font-weight:500;color:var(--text);line-height:1.4;flex:1;}
+.ctitle.done{text-decoration:line-through;color:var(--text3);}
+.cmeta{display:flex;align-items:center;gap:6px;margin-top:5px;flex-wrap:wrap;}
+.cdate{font-size:11px;color:var(--text3);}
+.cdesc{font-size:12px;color:var(--text2);margin-top:4px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.cacts{display:flex;gap:6px;margin-top:8px;}
+.bsm{font-size:11px;font-weight:600;padding:4px 10px;border-radius:6px;border:none;cursor:pointer;}
+.bck{background:rgba(0,200,117,.12);color:var(--green);}
+.bck:active{background:rgba(0,200,117,.25);}
+.bdl{background:rgba(255,69,69,.1);color:var(--red);}
+.bdl:active{background:rgba(255,69,69,.2);}
+
+/* ─── Chips ──────────────────────────────────────────────────────────────── */
+.chip{display:inline-flex;align-items:center;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;letter-spacing:.3px;white-space:nowrap;}
+.cv{background:rgba(255,69,69,.12);color:var(--red);}
+.ci{background:rgba(255,184,0,.12);color:var(--yellow);}
+.cp{background:rgba(74,158,255,.12);color:var(--blue);}
+.ca{background:rgba(0,200,117,.12);color:var(--green);}
+.cc{background:rgba(155,109,255,.12);color:var(--purple);}
+.ct{background:rgba(0,212,180,.12);color:var(--teal);}
+.cr{background:rgba(74,158,255,.12);color:var(--blue);}
+.cpk{background:rgba(255,107,157,.12);color:var(--pink);}
+
+/* ─── Idea cards ─────────────────────────────────────────────────────────── */
+.icard{background:var(--bg2);border:1px solid var(--border);border-left:3px solid var(--teal);border-radius:var(--r);padding:11px 13px;margin-bottom:8px;cursor:pointer;transition:all .15s;}
+.icard:active{background:var(--bg3);}
+.itema{font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--teal);margin-bottom:2px;}
+.ititulo{font-size:14px;font-weight:500;color:var(--text);line-height:1.4;}
+.idet{font-size:12px;color:var(--text3);margin-top:3px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+
+/* ─── Cumpleaños ──────────────────────────────────────────────────────────── */
+.bcard{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:10px 13px;margin-bottom:8px;display:flex;align-items:center;gap:11px;cursor:pointer;}
+.bcard:active{background:var(--bg3);}
+.bav{width:40px;height:40px;border-radius:50%;background:rgba(255,107,157,.15);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;color:var(--pink);flex-shrink:0;}
+.bname{font-size:14px;font-weight:500;}
+.bdate{font-size:11px;color:var(--text3);margin-top:1px;}
+.btag{font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;white-space:nowrap;}
+.btoday{background:rgba(255,107,157,.15);color:var(--pink);}
+.bsoon{background:rgba(255,184,0,.12);color:var(--yellow);}
+.bfar{background:var(--bg3);color:var(--text3);}
+
+/* ─── Home ───────────────────────────────────────────────────────────────── */
+.sgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:13px;}
+.scard{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:13px;}
+.snum{font-size:26px;font-weight:700;line-height:1;}
+.slbl{font-size:11px;color:var(--text3);font-weight:500;letter-spacing:.3px;margin-top:2px;}
+.sechead{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;}
+.sectitle{font-size:15px;font-weight:600;}
+.ni{display:flex;align-items:flex-start;gap:9px;padding:9px 12px;border-bottom:1px solid var(--border);}
+.ni:last-child{border-bottom:none;}
+.ndot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:5px;}
+.ntitle{font-size:13px;font-weight:500;}
+.nsub{font-size:11px;color:var(--text3);margin-top:1px;}
+.mhead{font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--text3);padding:6px 0 4px;display:flex;align-items:center;gap:6px;}
+.mline{flex:1;height:1px;background:var(--border);}
+.qbar{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:10px 13px;margin-bottom:11px;display:flex;align-items:center;gap:8px;cursor:pointer;}
+.qbar:active{background:var(--bg3);}
+.qph{font-size:13px;color:var(--text3);}
+
+/* ─── Notificaciones banner ───────────────────────────────────────────────── */
+.notif-banner{background:rgba(74,158,255,.08);border:1px solid rgba(74,158,255,.2);border-radius:var(--r);padding:11px 13px;margin-bottom:12px;display:flex;align-items:center;gap:10px;cursor:pointer;}
+.notif-banner:active{background:rgba(74,158,255,.15);}
+.notif-banner svg{width:20px;height:20px;stroke:var(--blue);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;}
+.notif-banner-text p{font-size:13px;font-weight:600;color:var(--text);}
+.notif-banner-text span{font-size:11px;color:var(--text3);}
+
+/* ─── Filter ─────────────────────────────────────────────────────────────── */
+.fbar{display:flex;gap:5px;margin-bottom:11px;overflow-x:auto;padding-bottom:2px;}
+.fbar::-webkit-scrollbar{display:none;}
+.ftab{padding:5px 11px;border-radius:20px;border:1px solid var(--border);background:var(--bg2);font-size:12px;font-weight:500;cursor:pointer;white-space:nowrap;color:var(--text3);transition:all .15s;flex-shrink:0;}
+.ftab.active{background:rgba(255,107,53,.1);border-color:var(--accent);color:var(--accent);}
+
+/* ─── FAB ────────────────────────────────────────────────────────────────── */
+#fab{position:absolute;bottom:calc(var(--safe-bot) + 68px);right:16px;width:52px;height:52px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 20px rgba(255,107,53,.4);transition:transform .15s;z-index:10;border:none;}
+#fab:active{transform:scale(.92);}
+#fab svg{width:24px;height:24px;stroke:#fff;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;}
+
+/* ─── Sheet ──────────────────────────────────────────────────────────────── */
+#sov{position:absolute;inset:0;background:rgba(0,0,0,.65);z-index:20;opacity:0;pointer-events:none;transition:opacity .25s;}
+#sov.open{opacity:1;pointer-events:all;}
+#sheet{position:absolute;bottom:0;left:0;right:0;background:var(--bg2);border-radius:var(--r3) var(--r3) 0 0;border-top:1px solid var(--border);z-index:21;transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);padding-bottom:max(var(--safe-bot),20px);max-height:92vh;overflow-y:auto;}
+#sheet.open{transform:translateY(0);}
+#sheet::-webkit-scrollbar{display:none;}
+.shandle{width:40px;height:4px;background:var(--border2);border-radius:4px;margin:11px auto 5px;}
+.stitle{font-size:15px;font-weight:600;padding:0 16px 9px;}
+.fg{padding:0 16px 10px;}
+.flbl{font-size:11px;font-weight:700;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;margin-bottom:5px;display:block;}
+.fi{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r2);color:var(--text);font-family:'Space Grotesk',sans-serif;font-size:14px;padding:10px 12px;outline:none;transition:border-color .15s;}
+.fi:focus{border-color:var(--accent);}
+textarea.fi{resize:none;height:66px;line-height:1.5;}
+.tgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:0 16px 10px;}
+.tbtn{padding:9px 4px;border-radius:var(--r2);border:1px solid var(--border);background:var(--bg3);color:var(--text2);font-size:11px;font-weight:500;cursor:pointer;transition:all .15s;text-align:center;display:flex;flex-direction:column;align-items:center;gap:3px;}
+.tbtn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.tbtn.sel{border-color:var(--accent);background:rgba(255,107,53,.1);color:var(--accent);}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 16px 10px;}
+.fsub{width:calc(100% - 32px);margin:4px 16px 12px;background:var(--accent);color:#fff;font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:600;padding:13px;border-radius:var(--r);border:none;cursor:pointer;transition:opacity .15s;}
+.fsub:active{opacity:.85;}
+.fsub:disabled{opacity:.45;cursor:default;}
+.tema-grid{display:flex;flex-wrap:wrap;gap:6px;padding:0 16px 10px;}
+.tchip{padding:5px 11px;border-radius:20px;border:1px solid var(--border);background:var(--bg3);font-size:12px;font-weight:500;cursor:pointer;color:var(--text2);transition:all .15s;}
+.tchip.sel{background:rgba(0,212,180,.12);border-color:var(--teal);color:var(--teal);}
+
+/* ─── Detail ─────────────────────────────────────────────────────────────── */
+#det{position:absolute;inset:0;background:var(--bg);z-index:15;transform:translateX(100%);transition:transform .28s cubic-bezier(.4,0,.2,1);overflow-y:auto;}
+#det.open{transform:translateX(0);}
+#det::-webkit-scrollbar{display:none;}
+.dhead{padding:calc(var(--safe-top) + 10px) 16px 11px;display:flex;align-items:center;gap:11px;border-bottom:1px solid var(--border);background:var(--bg);position:sticky;top:0;z-index:2;}
+.bbk{width:36px;height:36px;border-radius:50%;background:var(--bg3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;}
+.bbk svg{width:15px;height:15px;stroke:var(--text2);fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;}
+.dtitle{font-size:15px;font-weight:600;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.dbody{padding:16px;}
+.dsec{margin-bottom:17px;}
+.dlbl{font-size:11px;font-weight:700;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;margin-bottom:5px;}
+.dval{font-size:14px;color:var(--text);line-height:1.6;}
+.dblk{font-size:13px;color:var(--text2);line-height:1.7;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:11px;white-space:pre-wrap;word-break:break-word;}
+.dact{width:100%;padding:12px;border-radius:var(--r);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;border:none;margin-bottom:8px;}
+
+/* ─── Toast ──────────────────────────────────────────────────────────────── */
+#toast{position:absolute;top:calc(var(--safe-top) + 60px);left:50%;transform:translateX(-50%) translateY(-12px);background:var(--bg4);border:1px solid var(--border2);border-radius:var(--r2);padding:9px 14px;font-size:13px;font-weight:500;white-space:nowrap;opacity:0;transition:all .2s;z-index:60;pointer-events:none;max-width:90vw;text-align:center;}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* ─── Misc ───────────────────────────────────────────────────────────────── */
+.spinner{width:26px;height:26px;border:2px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin .65s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.lspin{display:flex;flex-direction:column;align-items:center;justify-content:center;height:160px;gap:11px;color:var(--text3);font-size:13px;}
+.empty{text-align:center;padding:44px 16px;color:var(--text3);font-size:13px;}
+.scroll-pad{height:72px;}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- Header -->
+<div id="hdr">
+  <div class="hi">
+    <div class="logo">V<em>φ</em>ID</div>
+    <div class="hbtns">
+      <div class="hbtn" id="inst-btn" title="Instalar app" style="display:none" onclick="installApp()">
+        <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      </div>
+      <div class="hbtn" id="synbtn" title="Sincronizar" onclick="syncAll()">
+        <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+      </div>
+      <div class="hbtn" title="Alertas vencidas" onclick="switchTab('tareas');setFilter('VENCIDO')">
+        <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <div class="rdot" id="rdot"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Sync bar -->
+<div id="sbar">
+  <div class="stxt"><div class="sdot" id="sdot"></div><span id="stxt">Conectando…</span></div>
+  <span class="sync-link" onclick="syncAll()">↺ Actualizar</span>
+</div>
+
+<!-- Nav -->
+<div id="nav">
+  <button class="nb active" data-tab="home" onclick="switchTab('home')">
+    <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    <span>Inicio</span>
+  </button>
+  <button class="nb" data-tab="tareas" onclick="switchTab('tareas')">
+    <svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+    <span>Tareas</span>
+    <div class="nbadge" id="badge-tareas" style="display:none"></div>
+  </button>
+  <button class="nb" data-tab="ideas" onclick="switchTab('ideas')">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    <span>Ideas</span>
+  </button>
+  <button class="nb" data-tab="cumple" onclick="switchTab('cumple')">
+    <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    <span>Cumpleaños</span>
+  </button>
+</div>
+
+<!-- Content -->
+<div id="content"><div class="lspin"><div class="spinner"></div>Cargando desde Supabase…</div></div>
+
+<!-- FAB -->
+<button id="fab" onclick="openSheet()">
+  <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+</button>
+
+<div id="toast"></div>
+
+<!-- Detail -->
+<div id="det">
+  <div class="dhead">
+    <div class="bbk" onclick="closeDet()"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></div>
+    <div class="dtitle" id="det-title">Detalle</div>
+    <button class="bsm bdl" id="det-del" style="font-size:12px;padding:5px 12px;border-radius:6px;">Eliminar</button>
+  </div>
+  <div class="dbody" id="det-body"></div>
+</div>
+
+<!-- Sheet -->
+<div id="sov" onclick="closeSheet()"></div>
+<div id="sheet">
+  <div class="shandle"></div>
+  <div class="stitle" id="stitle">Nueva nota</div>
+  <div id="scontent"></div>
+</div>
+
+</div><!-- #app -->
+
+<script>
+// ════════════════════════════════════════════════════════════════════════════
+//  CONFIG
+// ════════════════════════════════════════════════════════════════════════════
+const SUPA_URL = 'https://tjfdlddcbckgqbypqcef.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRqZmRsZGRjYmNrZ3FieXBxY2VmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1NDQzNDQsImV4cCI6MjA5MjEyMDM0NH0.VdATy9KI7YZoqcUjscczQaKVuKFvy33fyxjodo4353I';
+const SH = { 'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':'return=representation' };
+
+// ════════════════════════════════════════════════════════════════════════════
+//  SUPABASE HELPER
+// ════════════════════════════════════════════════════════════════════════════
+async function sb(method, table, qs='', body=null) {
+  const url = `${SUPA_URL}/rest/v1/${table}${qs?'?'+qs:''}`;
+  const opts = { method, headers:{...SH} };
+  if (body) opts.body = JSON.stringify(body);
+  const r = await fetch(url, opts);
+  if (!r.ok) throw new Error(`${r.status}: ${await r.text()}`);
+  return r.status === 204 ? [] : r.json();
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  STATE
+// ════════════════════════════════════════════════════════════════════════════
+const MESES      = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+const MESES_FULL = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+let tareas=[], ideas=[], temas=[], cumpleanos=[];
+let currentTab='home', currentFilter='all';
+let selType='tarea', selTema='Void';
+let currentDet=null, isSyncing=false;
+let notifPerm = Notification?.permission || 'default';
+let swReg = null;
+let deferredInstall = null;
+
+// ─── Cumpleaños en localStorage ───────────────────────────────────────────
+function loadCumple() {
+  const r = localStorage.getItem('void_cumple');
+  if (r) return JSON.parse(r);
+  return [
+    {id:1,nombre:'werita',dia:26,mes:5},{id:2,nombre:'Janet',dia:21,mes:2},
+    {id:3,nombre:'Liluuu',dia:30,mes:3},{id:4,nombre:'Rafa',dia:12,mes:4},
+    {id:5,nombre:'Ingrid',dia:24,mes:9},{id:6,nombre:'Mich',dia:12,mes:10},
+    {id:7,nombre:'Paty',dia:17,mes:7},{id:8,nombre:'Naye',dia:14,mes:12},
+    {id:9,nombre:'Vian',dia:10,mes:11},{id:10,nombre:'Pinedita',dia:14,mes:2},
+    {id:11,nombre:'Beto',dia:2,mes:1},{id:12,nombre:'Oscar',dia:11,mes:6},
+    {id:13,nombre:'Juan',dia:22,mes:11},{id:14,nombre:'Bebelyn',dia:23,mes:9},
+    {id:15,nombre:'Gio',dia:2,mes:7}
+  ];
+}
+function saveCumple() { localStorage.setItem('void_cumple',JSON.stringify(cumpleanos)); }
+cumpleanos = loadCumple();
+
+// ════════════════════════════════════════════════════════════════════════════
+//  SERVICE WORKER + NOTIFICACIONES
+// ════════════════════════════════════════════════════════════════════════════
+async function initSW() {
+  if (!('serviceWorker' in navigator)) return;
+  try {
+    swReg = await navigator.serviceWorker.register('./sw.js');
+    console.log('[SW] registrado');
+  } catch(e) { console.warn('[SW] error:', e); }
+}
+
+async function pedirPermiso() {
+  if (!('Notification' in window)) { showToast('Tu navegador no soporta notificaciones'); return false; }
+  if (Notification.permission === 'granted') return true;
+  const p = await Notification.requestPermission();
+  notifPerm = p;
+  render();
+  if (p === 'granted') {
+    showToast('Notificaciones activadas ✓');
+    programarAlarmas();
+    return true;
+  }
+  showToast('Permiso denegado');
+  return false;
+}
+
+// ─── Notificar en X milisegundos ──────────────────────────────────────────
+function notifIn(id, ms, title, body) {
+  if (ms <= 0) return;
+  if (swReg?.active) {
+    swReg.active.postMessage({ type:'SET_ALARM', id, ms, title, body, tag:`void-${id}` });
+  } else {
+    setTimeout(() => {
+      if (Notification.permission === 'granted') new Notification(title, { body, icon:'icon-192.png', tag:`void-${id}` });
+    }, ms);
+  }
+}
+function cancelarAlarma(id) {
+  swReg?.active?.postMessage({ type:'CANCEL_ALARM', id:`tarea-${id}` });
+}
+
+// ─── Programa todas las alarmas pendientes ────────────────────────────────
+function programarAlarmas() {
+  if (notifPerm !== 'granted') return;
+  const ahora = Date.now();
+
+  tareas.filter(t => !t.completada && t.fecha).forEach(t => {
+    const f = parseFecha(t.fecha);
+    if (!f) return;
+
+    // Alarma 1: 1 día antes a las 9am
+    const unDiaAntes = new Date(f); unDiaAntes.setDate(unDiaAntes.getDate()-1); unDiaAntes.setHours(9,0,0,0);
+    const ms1 = unDiaAntes.getTime() - ahora;
+    if (ms1 > 0) notifIn(`tarea-${t.id}-1d`, ms1, `⏰ Mañana vence`, t.nombre);
+
+    // Alarma 2: el día exacto (si tiene hora_limite, a esa hora; si no, a las 8am)
+    let diaVence = new Date(f);
+    if (t.hora_limite) {
+      const [hh,mm] = t.hora_limite.split(':').map(Number);
+      diaVence.setHours(hh,mm,0,0);
+    } else { diaVence.setHours(8,0,0,0); }
+    const ms2 = diaVence.getTime() - ahora;
+    if (ms2 > 0) notifIn(`tarea-${t.id}-d0`, ms2, `🔔 Vence hoy`, `${t.nombre}${t.hora_limite?' · '+t.hora_limite:''}`);
+
+    // Alarma 3: si ya está vencida, notificar ahora (1 vez)
+    if (calcEstado(t.fecha).dias < 0) {
+      const key = `void_notif_venc_${t.id}`;
+      if (!localStorage.getItem(key)) {
+        localStorage.setItem(key, '1');
+        notifIn(`tarea-${t.id}-venc`, 2000, `🚨 Tarea vencida`, t.nombre);
+      }
+    }
+  });
+
+  // Cumpleaños: notificar el día a las 9am
+  cumpleanos.forEach(c => {
+    const dias = diasCumple(c.dia, c.mes);
+    if (dias === 0) {
+      const hoy = new Date(); hoy.setHours(9,0,0,0);
+      const ms = hoy.getTime() - Date.now();
+      if (ms > 0) notifIn(`cumple-${c.id}`, ms, `🎂 Cumpleaños hoy`, `¡Feliz cumpleaños a ${c.nombre}!`);
+      else notifIn(`cumple-${c.id}`, 3000, `🎂 Cumpleaños hoy`, `¡Feliz cumpleaños a ${c.nombre}!`);
+    }
+  });
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  PWA INSTALL
+// ════════════════════════════════════════════════════════════════════════════
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredInstall = e;
+  document.getElementById('inst-btn').style.display = 'flex';
+});
+
+async function installApp() {
+  if (!deferredInstall) { showToast('Usa "Agregar a pantalla de inicio" del navegador'); return; }
+  deferredInstall.prompt();
+  const { outcome } = await deferredInstall.userChoice;
+  if (outcome === 'accepted') { showToast('¡App instalada! ✓'); document.getElementById('inst-btn').style.display='none'; }
+  deferredInstall = null;
+}
+
+window.addEventListener('appinstalled', () => showToast('Void instalado en tu pantalla de inicio ✓'));
+
+// ════════════════════════════════════════════════════════════════════════════
+//  SYNC
+// ════════════════════════════════════════════════════════════════════════════
+function setSS(st, txt) {
+  document.getElementById('sdot').className = 'sdot' + (st?' '+st:'');
+  document.getElementById('stxt').textContent = txt;
+}
+
+async function syncAll() {
+  if (isSyncing) return;
+  isSyncing = true;
+  setSS('spin','Sincronizando…');
+  const synBtn = document.getElementById('synbtn');
+  if (synBtn) synBtn.style.opacity = '.5';
+  try {
+    const [t,i,tm] = await Promise.all([
+      sb('GET','tareas','completada=eq.false&order=fecha.asc'),
+      sb('GET','ideas','order=creado_en.desc'),
+      sb('GET','temas','order=nombre.asc')
+    ]);
+    tareas = t||[];
+    ideas  = i||[];
+    temas  = (tm||[]).map(x=>x.nombre);
+    if (!temas.length) temas = ['Void','Python','Escuela','Emergentes','PUMATH','Yutu','Nuevas Apps'];
+    const hora = new Date().toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'});
+    setSS('ok', `Sincronizado · ${hora}`);
+    updateBadges();
+    render();
+    if (notifPerm==='granted') programarAlarmas();
+  } catch(e) {
+    setSS('err','Sin conexión');
+    showToast('Sin conexión con Supabase');
+    render();
+  }
+  isSyncing = false;
+  if (synBtn) synBtn.style.opacity = '1';
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  UTILS
+// ════════════════════════════════════════════════════════════════════════════
+function parseFecha(s) {
+  if (!s) return null;
+  const [d,m,y] = s.split('/').map(Number);
+  return new Date(y,m-1,d);
+}
+function formatFecha(d) {
+  return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
+}
+function calcEstado(fecha) {
+  if (!fecha) return {lbl:'S/F',cls:'ca',dias:9999,color:'var(--text3)'};
+  const f = parseFecha(fecha), hoy = new Date(); hoy.setHours(0,0,0,0);
+  const diff = Math.round((f-hoy)/86400000);
+  if (diff < 0)  return {lbl:'VENCIDO',cls:'cv',dias:diff,color:'var(--red)'};
+  if (diff === 0) return {lbl:'HOY',   cls:'ci',dias:0,   color:'var(--yellow)'};
+  if (diff <= 2)  return {lbl:diff+'d',cls:'ci',dias:diff, color:'var(--yellow)'};
+  if (diff <= 7)  return {lbl:diff+'d',cls:'cp',dias:diff, color:'var(--blue)'};
+  return {lbl:diff+'d',cls:'ca',dias:diff,color:'var(--green)'};
+}
+function diasCumple(dia,mes) {
+  const hoy = new Date();
+  let n = new Date(hoy.getFullYear(),mes-1,dia);
+  if (n < hoy) n = new Date(hoy.getFullYear()+1,mes-1,dia);
+  return Math.round((n-hoy)/86400000);
+}
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2500);
+}
+function updateBadges() {
+  const venc = tareas.filter(t=>!t.completada&&calcEstado(t.fecha).dias<0).length;
+  const rdot = document.getElementById('rdot');
+  const badge = document.getElementById('badge-tareas');
+  rdot.style.display = venc>0?'block':'none';
+  badge.style.display = venc>0?'flex':'none';
+  badge.textContent = venc>9?'9+':venc;
+}
+function esc(s){ return s.replace(/'/g,"\\'").replace(/"/g,'&quot;'); }
+
+// ════════════════════════════════════════════════════════════════════════════
+//  RENDER
+// ════════════════════════════════════════════════════════════════════════════
+function render() {
+  const el = document.getElementById('content');
+  if      (currentTab==='home')   el.innerHTML = renderHome();
+  else if (currentTab==='tareas') el.innerHTML = renderTareas();
+  else if (currentTab==='ideas')  el.innerHTML = renderIdeas();
+  else if (currentTab==='cumple') el.innerHTML = renderCumple();
+  updateBadges();
+}
+
+// ── HOME ──────────────────────────────────────────────────────────────────
+function renderHome() {
+  const pend  = tareas.filter(t=>!t.completada);
+  const venc  = pend.filter(t=>calcEstado(t.fecha).dias<0);
+  const hoyL  = pend.filter(t=>calcEstado(t.fecha).dias===0);
+  const prox  = pend.filter(t=>{const d=calcEstado(t.fecha).dias;return d>0&&d<=3;});
+  const xCum  = cumpleanos.map(c=>({...c,dias:diasCumple(c.dia,c.mes)})).filter(c=>c.dias<=7).sort((a,b)=>a.dias-b.dias);
+
+  let h = `<div class="qbar" onclick="openSheet()">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--text3)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    <span class="qph">Agregar tarea, idea o recordatorio…</span>
+  </div>`;
+
+  // Banner notificaciones
+  if (notifPerm !== 'granted') {
+    h += `<div class="notif-banner" onclick="pedirPermiso()">
+      <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      <div class="notif-banner-text">
+        <p>Activar notificaciones</p>
+        <span>Recibe alertas de tus tareas y cumpleaños</span>
+      </div>
+    </div>`;
+  }
+
+  h += `<div class="sgrid">
+    <div class="scard"><div class="snum" style="color:var(--accent)">${pend.length}</div><div class="slbl">Pendientes</div></div>
+    <div class="scard"><div class="snum" style="color:var(--red)">${venc.length}</div><div class="slbl">Vencidas</div></div>
+    <div class="scard"><div class="snum" style="color:var(--teal)">${ideas.length}</div><div class="slbl">Ideas</div></div>
+    <div class="scard"><div class="snum" style="color:var(--pink)">${cumpleanos.length}</div><div class="slbl">Cumpleaños</div></div>
+  </div>`;
+
+  const urgentes = [...venc,...hoyL,...prox].slice(0,6);
+  if (urgentes.length) {
+    h += `<div class="sechead"><div class="sectitle">Urgente</div></div>
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);margin-bottom:13px;overflow:hidden;">`;
+    urgentes.forEach(t => {
+      const e = calcEstado(t.fecha);
+      const sub = e.dias<0 ? `Venció hace ${Math.abs(e.dias)}d` : e.dias===0 ? 'Vence hoy' : `En ${e.dias} días`;
+      h += `<div class="ni" onclick="showDet('tarea',${t.id})">
+        <div class="ndot" style="background:${e.color}"></div>
+        <div><div class="ntitle">${t.nombre}</div><div class="nsub">${sub} · 📅 ${t.fecha}</div></div>
+      </div>`;
+    });
+    h += `</div>`;
+  }
+
+  if (xCum.length) {
+    h += `<div class="sechead"><div class="sectitle">Cumpleaños cercanos</div></div>`;
+    xCum.forEach(c => {
+      const lbl = c.dias===0?'HOY 🎂':c.dias===1?'MAÑANA':`En ${c.dias}d`;
+      const cls = c.dias===0?'btoday':c.dias<=3?'bsoon':'bfar';
+      h += `<div class="bcard"><div class="bav">${c.nombre[0].toUpperCase()}</div>
+        <div style="flex:1"><div class="bname">${c.nombre}</div><div class="bdate">${c.dia} ${MESES[c.mes-1]}</div></div>
+        <div class="btag ${cls}">${lbl}</div></div>`;
+    });
+  }
+
+  if (ideas.length) {
+    h += `<div class="sechead" style="margin-top:6px"><div class="sectitle">Ideas recientes</div></div>`;
+    ideas.slice(0,3).forEach(i => {
+      h += `<div class="icard" onclick="showDet('idea',${i.id})">
+        <div class="itema">${i.tema||'Sin tema'}</div>
+        <div class="ititulo">${i.titulo}</div>
+        ${i.detalle?`<div class="idet">${i.detalle}</div>`:''}
+      </div>`;
+    });
+  }
+
+  h += '<div class="scroll-pad"></div>';
+  return h;
+}
+
+// ── TAREAS ────────────────────────────────────────────────────────────────
+function renderTareas() {
+  const filters = [
+    {k:'all',l:'Pendientes'},{k:'VENCIDO',l:'🔴 Vencidas'},{k:'INMEDIATO',l:'🟡 Hoy/2d'},
+    {k:'PRÓXIMO',l:'🔵 7 días'},{k:'A TIEMPO',l:'🟢 A tiempo'},{k:'COMPLETADAS',l:'✓ Hechas'}
+  ];
+  let h = `<div class="fbar">`;
+  filters.forEach(f => h += `<div class="ftab${currentFilter===f.k?' active':''}" onclick="setFilter('${f.k}')">${f.l}</div>`);
+  h += `</div>`;
+
+  if (currentFilter==='COMPLETADAS') {
+    h += `<div id="comp-wrap"><div class="lspin"><div class="spinner"></div>Cargando…</div></div><div class="scroll-pad"></div>`;
+    setTimeout(loadCompletadas, 50);
+    return h;
+  }
+
+  let list = tareas.filter(t=>!t.completada);
+  if (currentFilter !== 'all') {
+    list = list.filter(t => {
+      const d = calcEstado(t.fecha).dias;
+      if (currentFilter==='VENCIDO')   return d < 0;
+      if (currentFilter==='INMEDIATO') return d >= 0 && d <= 2;
+      if (currentFilter==='PRÓXIMO')   return d > 2 && d <= 7;
+      if (currentFilter==='A TIEMPO')  return d > 7;
+      return true;
+    });
+  }
+  list = list.sort((a,b) => calcEstado(a.fecha).dias - calcEstado(b.fecha).dias);
+
+  h += list.length ? list.map(cardTarea).join('') : `<div class="empty">Sin tareas aquí</div>`;
+  h += '<div class="scroll-pad"></div>';
+  return h;
+}
+
+async function loadCompletadas() {
+  const wrap = document.getElementById('comp-wrap');
+  if (!wrap) return;
+  try {
+    const rows = await sb('GET','tareas','completada=eq.true&order=creado_en.desc&limit=40');
+    wrap.innerHTML = rows&&rows.length ? rows.map(cardTarea).join('') : '<div class="empty">Sin tareas completadas</div>';
+  } catch(e) { wrap.innerHTML = '<div class="empty">Error al cargar</div>'; }
+}
+
+function cardTarea(t) {
+  const e = calcEstado(t.fecha);
+  const col = t.completada ? 'var(--text3)' : t.tipo==='TAREA' ? 'var(--accent)' : 'var(--blue)';
+  return `<div class="card" onclick="showDet('tarea',${t.id})">
+    <div class="cacc" style="background:${col}"></div>
+    <div class="ctop">
+      <div class="ctitle${t.completada?' done':''}">${t.nombre}</div>
+      <span class="chip ${t.completada?'cc':e.cls}">${t.completada?'✓':e.lbl}</span>
+    </div>
+    <div class="cmeta">
+      <span class="cdate">📅 ${t.fecha||'sin fecha'}</span>
+      <span class="chip ${t.tipo==='TAREA'?'ct':'cr'}" style="font-size:9px">${t.tipo}</span>
+      ${t.hora_limite?`<span class="cdate">🕐 ${t.hora_limite}</span>`:''}
+    </div>
+    ${t.descripcion?`<div class="cdesc">${t.descripcion}</div>`:''}
+    <div class="cacts">
+      ${!t.completada?`<button class="bsm bck" onclick="event.stopPropagation();completar(${t.id})">✓ Completar</button>`:''}
+      <button class="bsm bdl" onclick="event.stopPropagation();borrarT(${t.id})">Eliminar</button>
+    </div>
+  </div>`;
+}
+
+// ── IDEAS ─────────────────────────────────────────────────────────────────
+function renderIdeas() {
+  const allT = [...new Set(ideas.map(i=>i.tema).filter(Boolean))].sort();
+  const fil  = currentFilter==='all' ? null : currentFilter;
+  const list = fil ? ideas.filter(i=>i.tema===fil) : ideas;
+
+  let h = `<div class="fbar"><div class="ftab${currentFilter==='all'?' active':''}" onclick="setFilter('all')">Todas</div>`;
+  allT.forEach(t => h += `<div class="ftab${currentFilter===t?' active':''}" onclick="setFilter('${esc(t)}')">${t}</div>`);
+  h += `</div>`;
+
+  h += list.length ? list.map(i => `
+    <div class="icard" onclick="showDet('idea',${i.id})">
+      <div class="itema">${i.tema||'Sin tema'}</div>
+      <div class="ititulo">${i.titulo}</div>
+      ${i.detalle?`<div class="idet">${i.detalle}</div>`:''}
+      <div style="font-size:11px;color:var(--text3);margin-top:4px">📅 ${i.fecha||''}</div>
+    </div>`).join('') : '<div class="empty">Sin ideas aquí</div>';
+
+  h += '<div class="scroll-pad"></div>';
+  return h;
+}
+
+// ── CUMPLEAÑOS ────────────────────────────────────────────────────────────
+function renderCumple() {
+  const sorted = [...cumpleanos].map(c=>({...c,dias:diasCumple(c.dia,c.mes)})).sort((a,b)=>a.dias-b.dias);
+  let h='', lastMes=null;
+  sorted.forEach(c => {
+    if (c.mes !== lastMes) {
+      h += `<div class="mhead"><span>${MESES_FULL[c.mes-1]}</span><div class="mline"></div></div>`;
+      lastMes = c.mes;
+    }
+    const lbl = c.dias===0?'HOY 🎂':c.dias===1?'MAÑANA':c.dias<=7?`En ${c.dias}d`:`${c.dia} ${MESES[c.mes-1]}`;
+    const cls = c.dias===0?'btoday':c.dias<=7?'bsoon':'bfar';
+    h += `<div class="bcard" onclick="showDet('cumple',${c.id})">
+      <div class="bav">${c.nombre[0].toUpperCase()}</div>
+      <div style="flex:1"><div class="bname">${c.nombre}</div><div class="bdate">${c.dia} de ${MESES_FULL[c.mes-1]}</div></div>
+      <div class="btag ${cls}">${lbl}</div>
+    </div>`;
+  });
+  h += '<div class="scroll-pad"></div>';
+  return h;
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  TAB / FILTER
+// ════════════════════════════════════════════════════════════════════════════
+function switchTab(tab) {
+  currentTab = tab; currentFilter = 'all';
+  document.querySelectorAll('.nb').forEach(b => b.classList.toggle('active', b.dataset.tab===tab));
+  render();
+}
+function setFilter(f) { currentFilter=f; render(); }
+
+// ════════════════════════════════════════════════════════════════════════════
+//  DETAIL
+// ════════════════════════════════════════════════════════════════════════════
+function showDet(type, id) {
+  currentDet = {type,id};
+  const det   = document.getElementById('det');
+  const title = document.getElementById('det-title');
+  const body  = document.getElementById('det-body');
+  const del   = document.getElementById('det-del');
+
+  if (type==='tarea') {
+    const t = tareas.find(x=>x.id===id) || {id,nombre:'Tarea',descripcion:'',fecha:'',tipo:'TAREA',completada:false,hora_limite:''};
+    title.textContent = t.nombre;
+    const e = calcEstado(t.fecha);
+    body.innerHTML = `
+      <div class="dsec"><div style="display:flex;gap:7px;flex-wrap:wrap">
+        <span class="chip ${t.completada?'cc':e.cls}">${t.completada?'COMPLETADA':e.lbl}</span>
+        <span class="chip ${t.tipo==='TAREA'?'ct':'cr'}">${t.tipo}</span>
+      </div></div>
+      <div class="dsec"><div class="dlbl">Fecha límite</div>
+        <div class="dval">📅 ${t.fecha||'Sin fecha'}${t.hora_limite?' · 🕐 '+t.hora_limite:''}</div></div>
+      ${t.descripcion?`<div class="dsec"><div class="dlbl">Descripción</div><div class="dblk">${t.descripcion}</div></div>`:''}
+      ${!t.completada?`<button class="dact" style="background:rgba(0,200,117,.12);color:var(--green);border:1px solid rgba(0,200,117,.2)" onclick="completar(${t.id});closeDet()">✓ Marcar como completada</button>`:''}`;
+    del.onclick = () => borrarT(id, true);
+
+  } else if (type==='idea') {
+    const i = ideas.find(x=>x.id===id) || {id,titulo:'Idea',detalle:'',tema:'',fecha:''};
+    title.textContent = i.titulo;
+    body.innerHTML = `
+      <div class="dsec"><span class="chip ct">${i.tema||'Sin tema'}</span></div>
+      <div class="dsec"><div class="dlbl">Fecha</div><div class="dval">📅 ${i.fecha||''}</div></div>
+      ${i.detalle?`<div class="dsec"><div class="dlbl">Detalle</div><div class="dblk">${i.detalle}</div></div>`:''}`;
+    del.onclick = () => borrarI(id, true);
+
+  } else if (type==='cumple') {
+    const c = cumpleanos.find(x=>x.id===id);
+    if (!c) return;
+    title.textContent = c.nombre;
+    const dias = diasCumple(c.dia,c.mes);
+    body.innerHTML = `
+      <div style="text-align:center;padding:24px 0 18px">
+        <div style="width:72px;height:72px;border-radius:50%;background:rgba(255,107,157,.15);display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:700;color:var(--pink);margin:0 auto 10px">${c.nombre[0].toUpperCase()}</div>
+        <div style="font-size:19px;font-weight:600">${c.nombre}</div>
+        <div style="color:var(--text3);margin-top:3px">${c.dia} de ${MESES_FULL[c.mes-1]}</div>
+      </div>
+      <div class="dsec"><div class="dlbl">Próximo cumpleaños</div>
+        <div class="dval" style="font-size:22px;font-weight:700;color:var(--pink)">${dias===0?'🎂 ¡HOY!':dias===1?'Mañana':dias<=7?`En ${dias} días`:MESES_FULL[c.mes-1]+' '+c.dia}</div></div>`;
+    del.onclick = () => {
+      cumpleanos = cumpleanos.filter(x=>x.id!==id);
+      saveCumple(); closeDet(); render(); showToast('Eliminado');
+    };
+  }
+
+  det.classList.add('open');
+}
+
+function closeDet() { document.getElementById('det').classList.remove('open'); currentDet=null; }
+
+// ════════════════════════════════════════════════════════════════════════════
+//  ACTIONS
+// ════════════════════════════════════════════════════════════════════════════
+async function completar(id) {
+  try {
+    await sb('PATCH','tareas',`id=eq.${id}`,{completada:true,estado:'COMPLETADAS'});
+    cancelarAlarma(id);
+    tareas = tareas.filter(t=>t.id!==id);
+    render(); showToast('¡Completada! ✓');
+  } catch(e) { showToast('Error al actualizar'); }
+}
+
+async function borrarT(id, fromDet=false) {
+  try {
+    await sb('DELETE','tareas',`id=eq.${id}`);
+    cancelarAlarma(id);
+    tareas = tareas.filter(t=>t.id!==id);
+    if (fromDet) closeDet();
+    render(); showToast('Tarea eliminada');
+  } catch(e) { showToast('Error al eliminar'); }
+}
+
+async function borrarI(id, fromDet=false) {
+  try {
+    await sb('DELETE','ideas',`id=eq.${id}`);
+    ideas = ideas.filter(i=>i.id!==id);
+    if (fromDet) closeDet();
+    render(); showToast('Idea eliminada');
+  } catch(e) { showToast('Error al eliminar'); }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  SHEET
+// ════════════════════════════════════════════════════════════════════════════
+function openSheet() {
+  selType = 'tarea'; selTema = temas[0]||'Void';
+  document.getElementById('scontent').innerHTML = buildForm();
+  document.getElementById('sov').classList.add('open');
+  document.getElementById('sheet').classList.add('open');
+  setTimeout(()=>{const i=document.getElementById('fi-titulo');if(i)i.focus();},320);
+}
+function closeSheet() {
+  document.getElementById('sov').classList.remove('open');
+  document.getElementById('sheet').classList.remove('open');
+}
+function selT(t) { selType=t; document.getElementById('scontent').innerHTML=buildForm(); }
+function selTm(t) {
+  selTema = t;
+  document.querySelectorAll('.tchip').forEach(c=>c.classList.toggle('sel',c.dataset.tema===t));
+  const nw = document.getElementById('new-tema-wrap');
+  if (nw) nw.style.display = t==='__new__' ? 'block':'none';
+}
+
+function buildForm() {
+  const tipos = `
+  <div style="padding:0 16px 7px;font-size:11px;font-weight:700;color:var(--text3);letter-spacing:.5px;text-transform:uppercase">Tipo</div>
+  <div class="tgrid">
+    <div class="tbtn${selType==='tarea'?' sel':''}" onclick="selT('tarea')">
+      <svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Tarea</div>
+    <div class="tbtn${selType==='recordatorio'?' sel':''}" onclick="selT('recordatorio')">
+      <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>Recordatorio</div>
+    <div class="tbtn${selType==='idea'?' sel':''}" onclick="selT('idea')">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Idea</div>
+    <div class="tbtn${selType==='cumple'?' sel':''}" onclick="selT('cumple')">
+      <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Cumpleaños</div>
+  </div>`;
+
+  if (selType==='cumple') {
+    return tipos+`
+    <div class="fg"><label class="flbl">Nombre</label><input class="fi" id="fi-titulo" type="text" placeholder="ej. Ingrid" autocomplete="off"></div>
+    <div class="frow">
+      <div><label class="flbl">Día</label><input class="fi" id="fi-dia" type="number" min="1" max="31" placeholder="26"></div>
+      <div><label class="flbl">Mes</label><select class="fi" id="fi-mes">${MESES_FULL.map((m,i)=>`<option value="${i+1}">${m}</option>`).join('')}</select></div>
+    </div>
+    <button class="fsub" onclick="guardar()">Guardar cumpleaños 🎂</button>`;
+  }
+
+  if (selType==='idea') {
+    const chips = temas.map(t=>`<div class="tchip${selTema===t?' sel':''}" data-tema="${esc(t)}" onclick="selTm('${esc(t)}')">${t}</div>`).join('');
+    return tipos+`
+    <div class="fg"><label class="flbl">Título</label><input class="fi" id="fi-titulo" type="text" placeholder="Título de la idea" autocomplete="off"></div>
+    <div class="fg"><label class="flbl">Detalle (opcional)</label><textarea class="fi" id="fi-det" placeholder="Escribe más…"></textarea></div>
+    <div style="padding:0 16px 7px;font-size:11px;font-weight:700;color:var(--text3);letter-spacing:.5px;text-transform:uppercase">Tema</div>
+    <div class="tema-grid">${chips}<div class="tchip" data-tema="__new__" onclick="selTm('__new__')">+ Nuevo</div></div>
+    <div class="fg" id="new-tema-wrap" style="display:none"><input class="fi" id="fi-new-tema" type="text" placeholder="Nombre del nuevo tema"></div>
+    <button class="fsub" onclick="guardar()">Guardar idea 💡</button>`;
+  }
+
+  // tarea / recordatorio
+  return tipos+`
+  <div class="fg"><label class="flbl">Título</label><input class="fi" id="fi-titulo" type="text" placeholder="ej. Llamar a Ingrid" autocomplete="off"></div>
+  <div class="fg"><label class="flbl">Descripción (opcional)</label><textarea class="fi" id="fi-desc" placeholder="Más detalles…"></textarea></div>
+  <div class="frow">
+    <div><label class="flbl">Fecha</label><input class="fi" id="fi-fecha" type="date" value="${new Date().toISOString().slice(0,10)}"></div>
+    <div><label class="flbl">Hora límite</label><input class="fi" id="fi-hora" type="time"></div>
+  </div>
+  <button class="fsub" id="fsub" onclick="guardar()">Guardar ${selType==='recordatorio'?'recordatorio 🔔':'tarea 📌'}</button>`;
+}
+
+async function guardar() {
+  const titulo = (document.getElementById('fi-titulo')||{}).value||'';
+  if (!titulo.trim()) { showToast('Escribe un título'); return; }
+  const btn = document.getElementById('fsub');
+  if (btn) { btn.disabled=true; btn.textContent='Guardando…'; }
+  setSS('spin','Guardando…');
+
+  try {
+    if (selType==='cumple') {
+      const dia = parseInt(document.getElementById('fi-dia').value)||1;
+      const mes = parseInt(document.getElementById('fi-mes').value)||1;
+      cumpleanos.push({id:Date.now(),nombre:titulo.trim(),dia,mes});
+      saveCumple(); closeSheet(); switchTab('cumple'); showToast('Cumpleaños guardado 🎂');
+
+    } else if (selType==='idea') {
+      let tema = selTema;
+      if (tema==='__new__') {
+        tema = (document.getElementById('fi-new-tema')||{}).value||'General';
+        if (!temas.includes(tema)) { await sb('POST','temas',null,{nombre:tema}); temas.push(tema); }
+      }
+      const detalle = (document.getElementById('fi-det')||{}).value||'';
+      const rows = await sb('POST','ideas',null,{titulo:titulo.trim(),detalle,tema,fecha:formatFecha(new Date())});
+      if (rows&&rows[0]) ideas.unshift(rows[0]);
+      closeSheet(); switchTab('ideas'); showToast('Idea guardada 💡');
+
+    } else {
+      const desc     = (document.getElementById('fi-desc')||{}).value||'';
+      const fechaRaw = (document.getElementById('fi-fecha')||{}).value||'';
+      const hora     = (document.getElementById('fi-hora')||{}).value||'';
+      let fecha = '';
+      if (fechaRaw) { const d=new Date(fechaRaw+'T12:00:00'); fecha=formatFecha(d); }
+      const tipo    = selType==='recordatorio'?'RECORDATORIO':'TAREA';
+      const payload = {nombre:titulo.trim(),descripcion:desc,fecha,tipo,estado:'PENDIENTE',completada:false};
+      if (hora) payload.hora_limite = hora;
+      const rows = await sb('POST','tareas',null,payload);
+      if (rows&&rows[0]) { tareas.unshift(rows[0]); tareas.sort((a,b)=>calcEstado(a.fecha).dias-calcEstado(b.fecha).dias); }
+      closeSheet(); switchTab('tareas'); showToast(tipo==='TAREA'?'Tarea guardada 📌':'Recordatorio guardado 🔔');
+      // Programar alarma para la nueva tarea
+      if (notifPerm==='granted') programarAlarmas();
+    }
+    setSS('ok','Sincronizado');
+  } catch(e) {
+    setSS('err','Error al guardar');
+    showToast('Error al guardar. Revisa tu conexión.');
+    if (btn) { btn.disabled=false; btn.textContent='Guardar'; }
+  }
+  render();
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  INIT
+// ════════════════════════════════════════════════════════════════════════════
+initSW().then(() => syncAll());
+</script>
+</body>
+</html>
