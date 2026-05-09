@@ -1,6 +1,7 @@
 // ─── Void PWA Service Worker ──────────────────────────────────────────────────
-const CACHE = 'void-v1';
-const ASSETS = ['/', '/index.html', '/manifest.json'];
+const CACHE = 'void-v2';
+const BASE  = '/Void_appmovil/';
+const ASSETS = [BASE, BASE+'index.html', BASE+'manifest.json', BASE+'icon-192.png'];
 
 // ── Install ───────────────────────────────────────────────────────────────────
 self.addEventListener('install', e => {
@@ -32,12 +33,12 @@ self.addEventListener('push', e => {
   e.waitUntil(
     self.registration.showNotification(data.title, {
       body: data.body,
-      icon: '/icon-192.png',
-      badge: '/icon-192.png',
+      icon: '/Void_appmovil/icon-192.png',
+      badge: '/Void_appmovil/icon-192.png',
       tag: data.tag || 'void-notif',
       renotify: true,
       vibrate: [200, 100, 200],
-      data: { url: data.url || '/' }
+      data: { url: data.url || '/Void_appmovil/' }
     })
   );
 });
@@ -48,7 +49,7 @@ self.addEventListener('notificationclick', e => {
   e.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then(wins => {
       if (wins.length > 0) { wins[0].focus(); return; }
-      return clients.openWindow('/');
+      return clients.openWindow('/Void_appmovil/');
     })
   );
 });
@@ -64,12 +65,12 @@ self.addEventListener('message', e => {
     const tid = setTimeout(() => {
       self.registration.showNotification(title || 'Void', {
         body: body || '',
-        icon: '/icon-192.png',
-        badge: '/icon-192.png',
+        icon: '/Void_appmovil/icon-192.png',
+        badge: '/Void_appmovil/icon-192.png',
         tag: tag || id,
         renotify: true,
         vibrate: [300, 100, 300, 100, 300],
-        data: { url: '/' }
+        data: { url: '/Void_appmovil/' }
       });
       alarmas.delete(id);
     }, ms);

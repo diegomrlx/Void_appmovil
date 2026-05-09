@@ -332,7 +332,7 @@ cumpleanos = loadCumple();
 async function initSW() {
   if (!('serviceWorker' in navigator)) return;
   try {
-    swReg = await navigator.serviceWorker.register('./sw.js');
+    swReg = await navigator.serviceWorker.register('./sw.js', { scope: '/Void_appmovil/' });
     console.log('[SW] registrado');
   } catch(e) { console.warn('[SW] error:', e); }
 }
