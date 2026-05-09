@@ -3,6 +3,7 @@
   "short_name": "Void",
   "description": "Tareas, ideas y recordatorios. Tu segundo cerebro.",
   "start_url": "/Void_appmovil/index.html",
+  "scope": "/Void_appmovil/",
   "display": "standalone",
   "background_color": "#0A0A0F",
   "theme_color": "#0A0A0F",
